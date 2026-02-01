@@ -157,26 +157,49 @@ This document outlines the REST API endpoints for order management in the e-comm
 
 ```mermaid
 graph TD
-    A[Start] --> B[Create New Order]
+    A[Start] --> B[Create Order]
     B --> C{Order Exists?}
-    C -- Yes --> D[Get Order Details]
-    C -- No --> E[List User Orders]
-    D --> F[Order Cancelled?]
-    F -- Yes --> G[End]
-    F -- No --> H[Cancel Order]
-    H --> I[End]
-    E --> J[Order Cancelled?]
-    J -- Yes --> G
-    J -- No --> K[End]
+    C -- Yes --> D[Validate Items & Calculate Total]
+    C -- No --> E[HTTP 400]
+    D --> F[Process Payment]
+    F --> G{Payment Successful?}
+    G -- Yes --> H[Create Order in Database]
+    G -- No --> I[HTTP 500]
+    H --> J[Send Confirmation Email]
+    J --> K[Return Order Details]
+    K --> L[End]
+    E --> M[Get Order]
+    M --> N{Order Found?}
+    N -- Yes --> O[Check Authorization]
+    O -- No --> P[HTTP 403]
+    O -- Yes --> Q[Return Order Details]
+    Q --> L
+    M --> R{Order Status?}
+    R -- Pending --> S[Return Order Details]
+    R -- Not Pending --> T[HTTP 400]
+    S --> L
+    L --> U[List Orders]
+    U --> V{Valid Parameters?}
+    V -- Yes --> W[Fetch Orders]
+    V -- No --> X[HTTP 400]
+    W --> Y[Return Orders]
+    Y --> L
+    U --> Z[Cancel Order]
+    Z --> AA{Order Found?}
+    AA -- Yes --> AB[Check Authorization]
+    AB -- No --> AC[HTTP 403]
+    AB -- Yes --> AD[Check Order Status]
+    AD -- Pending --> AE[Cancel Order]
+    AD -- Not Pending --> AF[HTTP 400]
+    AE --> L
 ```
 
 ## Dependencies
 
-- `src.auth.verify_token`: Verifies the JWT token for authentication.
-- `src.database.orders.OrderRepository`: Manages order data in the database.
-- `src.utils.notifications.send_order_confirmation`: Sends an email confirmation for the order.
-- `src.payments.processor.PaymentProcessor`: Handles payment processing operations.
-```
+- `verify_token`: Verifies the JWT token for authentication.
+- `send_order_confirmation`: Sends a confirmation email to the user after order creation.
+- `OrderRepository`: Manages the database operations for orders.
+- `get_current_user`: Dependency for getting the current authenticated user.
 
 ## Payment Processing
 
@@ -186,37 +209,14 @@ The payment processing is handled by the `PaymentProcessor` class in the `paymen
 class PaymentProcessor:
     def __init__(self, provider: PaymentProvider = PaymentProvider.STRIPE):
         self.provider = provider
-
-    # Payment processing methods go here
 ```
 
-## Error Handling
+## Notes
 
-The API endpoints handle various errors and return appropriate HTTP status codes and error messages.
-
-- `HTTPException` with status code `400` for bad requests.
-- `HTTPException` with status code `401` for unauthorized access.
-- `HTTPException` with status code `403` for forbidden access.
-- `HTTPException` with status code `404` for not found resources.
-- `HTTPException` with status code `500` for internal server errors.
-
-## Security
-
-All endpoints require authentication via JWT token. The `get_current_user` function verifies the token and retrieves the current user's information.
-
-```python
-def get_current_user(token: str = Depends(oauth2_scheme)):
-    payload = verify_token(token)
-    if not payload:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token"
-        )
-    return {'id': payload['user_id']}
-```
-
-## Conclusion
-
-This documentation provides a comprehensive overview of the order management API endpoints in the e-commerce application. It covers the endpoints, request/response formats, error handling, dependencies, payment processing, and security aspects.
+- All endpoints require authentication via JWT token.
+- Only the order owner can access or modify their orders.
+- Pending orders can be cancelled, while processing or shipped orders cannot.
 
 ```
+
+This Markdown document provides a comprehensive overview of the Order API endpoints, including their descriptions, request/response formats, and error handling. It also includes a flowchart illustrating the logic flow of the endpoints and a section on dependencies and payment processing.
