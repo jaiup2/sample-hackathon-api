@@ -1,0 +1,110 @@
+{
+  "project_name": "Sample E-Commerce API",
+  "description": "A sample e-commerce API demonstrating authentication, orders, and database patterns",
+  "version": "1.0.0",
+  
+  "architectural_decisions": [
+    {
+      "title": "OAuth2 Authentication over SAML",
+      "rationale": "OAuth2 was chosen over SAML because: (1) Better mobile app support for our planned iOS/Android apps, (2) Simpler integration with third-party services like Google and GitHub, (3) More widely adopted standard in 2025 with better tooling",
+      "date": "2025-10-15",
+      "pr_link": "PR #42",
+      "related_files": ["src/auth/oauth.py", "src/auth/login.py"]
+    },
+    {
+      "title": "PostgreSQL with Redis Cache",
+      "rationale": "Hybrid database approach: PostgreSQL for reliable persistent storage (users, orders, products), Redis for fast session management and query caching. This provides both ACID compliance for critical data and sub-millisecond access for frequently used data.",
+      "date": "2025-09-01",
+      "pr_link": "PR #15",
+      "related_files": ["src/database/connection.py"]
+    },
+    {
+      "title": "JWT-based Session Management",
+      "rationale": "Stateless JWT tokens allow horizontal scaling without session stickiness. Redis backup provides session invalidation capability. Token refresh mechanism prevents forced re-authentication.",
+      "date": "2025-09-20",
+      "pr_link": "PR #28",
+      "related_files": ["src/auth/tokens.py"]
+    },
+    {
+      "title": "Repository Pattern for Data Access",
+      "rationale": "Implemented the Repository pattern to abstract database queries from business logic. This enables easier testing through mocks and potential database migration in the future.",
+      "date": "2025-08-15",
+      "pr_link": "PR #8",
+      "related_files": ["src/database/orders.py"]
+    }
+  ],
+  
+  "components": [
+    {
+      "name": "Authentication Module",
+      "description": "Handles user authentication including email/password login, OAuth2 integration (Google, GitHub), JWT token generation, and session management via Redis.",
+      "files": ["src/auth/__init__.py", "src/auth/login.py", "src/auth/tokens.py", "src/auth/oauth.py"],
+      "dependencies": ["database", "redis"],
+      "entry_point": "src/auth/login.py:AuthManager"
+    },
+    {
+      "name": "API Layer",
+      "description": "REST API endpoints using FastAPI. Includes order management endpoints with authentication middleware.",
+      "files": ["src/api/orders.py"],
+      "dependencies": ["auth", "database", "utils"],
+      "entry_point": "src/api/orders.py:router"
+    },
+    {
+      "name": "Database Layer",
+      "description": "Database connectivity and data access. PostgreSQL for persistent storage, Redis for caching. Implements connection pooling and Repository pattern.",
+      "files": ["src/database/connection.py", "src/database/orders.py"],
+      "dependencies": [],
+      "entry_point": "src/database/connection.py:get_db"
+    },
+    {
+      "name": "Utilities",
+      "description": "Shared utility functions including email notifications via SendGrid.",
+      "files": ["src/utils/notifications.py"],
+      "dependencies": [],
+      "entry_point": "src/utils/notifications.py"
+    }
+  ],
+  
+  "flows": {
+    "user_authentication": {
+      "description": "Complete flow for user login via email/password",
+      "steps": [
+        {"step": 1, "description": "User submits credentials to /api/auth/login", "file": "src/api/auth.py"},
+        {"step": 2, "description": "AuthManager.login() validates against database", "file": "src/auth/login.py"},
+        {"step": 3, "description": "If valid, create_access_token() generates JWT", "file": "src/auth/tokens.py"},
+        {"step": 4, "description": "Session stored in Redis for tracking", "file": "src/auth/login.py"},
+        {"step": 5, "description": "Token returned to client", "file": "src/api/auth.py"}
+      ]
+    },
+    "oauth_login": {
+      "description": "Login flow using OAuth2 providers (Google/GitHub)",
+      "steps": [
+        {"step": 1, "description": "Client redirected to provider auth URL", "file": "src/auth/oauth.py"},
+        {"step": 2, "description": "Provider returns auth code to callback", "file": "src/api/auth.py"},
+        {"step": 3, "description": "exchange_code() trades code for user info", "file": "src/auth/oauth.py"},
+        {"step": 4, "description": "User created or matched in database", "file": "src/auth/login.py"},
+        {"step": 5, "description": "JWT session created", "file": "src/auth/tokens.py"}
+      ]
+    },
+    "order_processing": {
+      "description": "Creating and processing a new order",
+      "steps": [
+        {"step": 1, "description": "Authenticated request to POST /api/orders/create", "file": "src/api/orders.py"},
+        {"step": 2, "description": "Order data validated via Pydantic model", "file": "src/api/orders.py"},
+        {"step": 3, "description": "OrderRepository.create() persists to database", "file": "src/database/orders.py"},
+        {"step": 4, "description": "send_order_confirmation() emails customer", "file": "src/utils/notifications.py"},
+        {"step": 5, "description": "Order response returned to client", "file": "src/api/orders.py"}
+      ]
+    }
+  },
+  
+  "file_dependencies": {
+    "src/auth/login.py": ["src/auth/tokens.py", "src/auth/oauth.py", "src/database/connection.py"],
+    "src/auth/tokens.py": [],
+    "src/auth/oauth.py": [],
+    "src/api/orders.py": ["src/auth/tokens.py", "src/database/orders.py", "src/utils/notifications.py"],
+    "src/database/orders.py": ["src/database/connection.py"],
+    "src/database/connection.py": [],
+    "src/utils/notifications.py": []
+  }
+}

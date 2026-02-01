@@ -1,0 +1,34 @@
+# GitHub Actions Workflow for Living Repository Sentinel
+# This workflow triggers the knowledge base update when code changes
+
+name: Update Knowledge Base
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    types: [ closed ]
+    branches: [ main, master ]
+
+jobs:
+  update-knowledge-base:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.pull_request.merged == true
+    
+    steps:
+      - name: Trigger Knowledge Base Update
+        run: |
+          echo "Triggering knowledge base update..."
+          curl -X POST "${{ secrets.SENTINEL_API_URL }}/api/webhook/manual-update" \
+            -H "Content-Type: application/json" \
+            -d '{"repo_path": "./data/sample_repo"}' \
+            --fail --silent --show-error || echo "Note: API may not be reachable from GitHub Actions"
+        env:
+          SENTINEL_API_URL: ${{ secrets.SENTINEL_API_URL }}
+      
+      - name: Notify Status
+        run: |
+          echo "✅ Knowledge base update triggered for:"
+          echo "   Event: ${{ github.event_name }}"
+          echo "   Ref: ${{ github.ref }}"
+          echo "   SHA: ${{ github.sha }}"
