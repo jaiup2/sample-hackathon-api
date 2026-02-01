@@ -2,9 +2,10 @@
 
 [Constraints]:
 1. Do not include any code snippets or references to the source code.
-2. Focus on documenting the API endpoints, their expected inputs, outputs, and any external dependencies.
+2. Focus on documenting the API endpoints, their expected inputs, outputs, and any dependencies.
 3. Include information about authentication and authorization.
-4. Mention any error handling or exceptions that may be raised.
+4. Mention any external library dependencies.
+5. Use clear and concise language.
 
 # API Documentation: Order Management
 
@@ -18,31 +19,32 @@ This documentation outlines the REST API endpoints for managing orders in the e-
 
 **Method:** `POST`
 
-**Description:** This endpoint allows users to create a new order by providing order items, shipping address, and payment method.
+**Description:** This endpoint creates a new order. It validates the order items, calculates the total price, processes payment (placeholder), creates the order record, and sends a confirmation email.
 
 **Request Body:**
 
-| Field          | Type    | Description                                                                 |
-|----------------|---------|-----------------------------------------------------------------------------|
-| items          | List[OrderItem] | A list of order items, each containing `product_id`, `quantity`, and `price`. |
-| shipping_address | str | The shipping address for the order. |
-| payment_method | str | The payment method to be used for the order. |
+| Name          | Type    | Description                                                                 |
+|---------------|---------|-----------------------------------------------------------------------------|
+| items         | list    | List of `OrderItem` objects containing product details and quantities.     |
+| shipping_address | str    | The shipping address for the order.                                       |
+| payment_method | str    | The payment method for the order.                                         |
 
-**Authentication:** JWT token is required for authentication.
+**Authentication:** JWT token required.
 
 **Response:**
 
-| Field          | Type    | Description                                                                 |
-|----------------|---------|-----------------------------------------------------------------------------|
-| order_id       | str     | The unique identifier for the created order. |
-| status         | str     | The current status of the order (e.g., 'pending', 'processing', 'shipped'). |
-| total          | float   | The total price of the order. |
-| items          | List[OrderItem] | The list of order items. |
-| created_at     | str     | The timestamp when the order was created. |
+| Name          | Type    | Description                                                                 |
+|---------------|---------|-----------------------------------------------------------------------------|
+| order_id      | str     | The unique identifier for the created order.                               |
+| status        | str     | The current status of the order (e.g., 'pending', 'processing', 'completed').|
+| total         | float   | The total price of the order.                                               |
+| items         | list    | List of `OrderItem` objects representing the order items.                   |
+| created_at    | str     | The timestamp when the order was created.                                   |
 
-**Exceptions:**
+**Error Handling:**
 
-- `HTTPException`: Raised if validation fails or payment processing fails.
+- `HTTPException` with status code `400` if validation fails.
+- `HTTPException` with status code `500` if payment processing fails.
 
 ### 2. Get order details
 
@@ -54,25 +56,26 @@ This documentation outlines the REST API endpoints for managing orders in the e-
 
 **Path Parameters:**
 
-| Field          | Type    | Description                                                                 |
-|----------------|---------|-----------------------------------------------------------------------------|
-| order_id       | str     | The unique identifier for the order. |
+| Name          | Type    | Description                                                                 |
+|---------------|---------|-----------------------------------------------------------------------------|
+| order_id      | str     | The unique identifier for the order.                                       |
 
-**Authentication:** JWT token is required for authentication.
+**Authentication:** JWT token required.
 
 **Response:**
 
-| Field          | Type    | Description                                                                 |
-|----------------|---------|-----------------------------------------------------------------------------|
-| order_id       | str     | The unique identifier for the order. |
-| status         | str     | The current status of the order (e.g., 'pending', 'processing', 'shipped'). |
-| total          | float   | The total price of the order. |
-| items          | List[OrderItem] | The list of order items. |
-| created_at     | str     | The timestamp when the order was created. |
+| Name          | Type    | Description                                                                 |
+|---------------|---------|-----------------------------------------------------------------------------|
+| order_id      | str     | The unique identifier for the order.                                       |
+| status        | str     | The current status of the order (e.g., 'pending', 'processing', 'completed').|
+| total         | float   | The total price of the order.                                               |
+| items         | list    | List of `OrderItem` objects representing the order items.                   |
+| created_at    | str     | The timestamp when the order was created.                                   |
 
-**Exceptions:**
+**Error Handling:**
 
-- `HTTPException`: Raised if the order is not found or the user is not authorized to access the order.
+- `HTTPException` with status code `404` if the order is not found.
+- `HTTPException` with status code `403` if the user is not authorized to access the order.
 
 ### 3. List user orders
 
@@ -84,26 +87,26 @@ This documentation outlines the REST API endpoints for managing orders in the e-
 
 **Query Parameters:**
 
-| Field          | Type    | Description                                                                 |
-|----------------|---------|-----------------------------------------------------------------------------|
-| limit          | int     | The number of orders to return per page. Default is 10. |
-| offset         | int     | The number of orders to skip before starting to collect the result set. |
+| Name          | Type    | Description                                                                 |
+|---------------|---------|-----------------------------------------------------------------------------|
+| limit         | int     | The maximum number of orders to return.                                     |
+| offset        | int     | The number of orders to skip before starting to collect the result set.    |
 
-**Authentication:** JWT token is required for authentication.
+**Authentication:** JWT token required.
 
 **Response:**
 
-| Field          | Type    | Description                                                                 |
-|----------------|---------|-----------------------------------------------------------------------------|
-| order_id       | str     | The unique identifier for the order. |
-| status         | str     | The current status of the order (e.g., 'pending', 'processing', 'shipped'). |
-| total          | float   | The total price of the order. |
-| items          | List[OrderItem] | The list of order items. |
-| created_at     | str     | The timestamp when the order was created. |
+| Name          | Type    | Description                                                                 |
+|---------------|---------|-----------------------------------------------------------------------------|
+| order_id      | str     | The unique identifier for the order.                                       |
+| status        | str     | The current status of the order (e.g., 'pending', 'processing', 'completed').|
+| total         | float   | The total price of the order.                                               |
+| items         | list    | List of `OrderItem` objects representing the order items.                   |
+| created_at    | str     | The timestamp when the order was created.                                   |
 
-**Exceptions:**
+**Error Handling:**
 
-- `HTTPException`: Raised if an error occurs during the retrieval of orders.
+- `HTTPException` with status code `401` if the user is not authenticated.
 
 ### 4. Cancel an order
 
@@ -111,36 +114,40 @@ This documentation outlines the REST API endpoints for managing orders in the e-
 
 **Method:** `POST`
 
-**Description:** This endpoint allows users to cancel a pending order. Orders that are processing or shipped cannot be cancelled.
+**Description:** This endpoint cancels a pending order. Only pending orders can be cancelled.
 
 **Path Parameters:**
 
-| Field          | Type    | Description                                                                 |
-|----------------|---------|-----------------------------------------------------------------------------|
-| order_id       | str     | The unique identifier for the order. |
+| Name          | Type    | Description                                                                 |
+|---------------|---------|-----------------------------------------------------------------------------|
+| order_id      | str     | The unique identifier for the order.                                       |
 
-**Authentication:** JWT token is required for authentication.
+**Authentication:** JWT token required.
 
 **Response:**
 
-| Field          | Type    | Description                                                                 |
-|----------------|---------|-----------------------------------------------------------------------------|
-| message        | str     | A confirmation message indicating the order was cancelled successfully. |
+| Name          | Type    | Description                                                                 |
+|---------------|---------|-----------------------------------------------------------------------------|
+| message       | str     | A confirmation message indicating the order was cancelled successfully.     |
 
-**Exceptions:**
+**Error Handling:**
 
-- `HTTPException`: Raised if the order is not found, the user is not authorized, or the order status is not 'pending'.
+- `HTTPException` with status code `404` if the order is not found.
+- `HTTPException` with status code `403` if the user is not authorized to cancel the order.
+- `HTTPException` with status code `400` if the order status is not 'pending'.
 
 ## External Dependencies
 
 - **FastAPI**: A modern, fast (high-performance), web framework for building APIs with Python 3.6+ based on standard Python type hints.
 - **Pydantic**: A data validation library for Python, based on type hints.
 - **SQLAlchemy**: A SQL toolkit and Object-Relational Mapping (ORM) system for Python, providing a full suite of well-known enterprise-level persistence patterns.
-- **OAuth2**: A standard protocol for authorization, used for securing APIs.
-- **Stripe**, **PayPal**, **Square**: Payment processing providers supported by the application.
+- **OAuth2**: A library for handling OAuth2 authentication and authorization.
+- **Stripe**: A payment processing platform.
+- **PayPal**: A payment processing platform.
+- **Square**: A payment processing platform.
 
-## Error Handling
+## Authentication and Authorization
 
-- **HTTPException**: Raised for various error scenarios, including invalid or expired tokens, order not found, unauthorized access, and payment processing failures.
+All endpoints require authentication via JWT token. The `get_current_user` function is used to retrieve the current authenticated user from the token. If the token is invalid or expired, an `HTTPException` with status code `401` is raised.
 
-This documentation provides a comprehensive overview of the order management API endpoints, their expected inputs, outputs, and external dependencies. It also covers authentication, authorization, and error handling aspects.
+For authorization, the current user's ID is compared with the order's user ID to ensure the user can only access their own orders. If the user is not authorized, an `HTTPException` with status code `403` is raised.
