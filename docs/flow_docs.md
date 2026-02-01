@@ -203,8 +203,7 @@ class PaymentProcessor:
 ## Notes
 
 - All endpoints require authentication via JWT token.
-- The `create_order` endpoint validates the order items and calculates the total price before creating the order record.
-- The `cancel_order` endpoint only allows cancelling pending orders.
+- The `create_order` endpoint validates the order items exist and are in stock, calculates the total price, processes payment, creates the order record, and sends a confirmation email.
+- The `cancel_order` endpoint only allows pending orders to be cancelled.
 - The `list_orders` endpoint supports pagination via `limit` and `offset` parameters.
-- The `PaymentProcessor` class is responsible for handling payment processing operations.
 ```
