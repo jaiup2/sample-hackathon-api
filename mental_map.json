@@ -2,71 +2,65 @@
   "project_name": "E-commerce API: High-Level Overview and Quick Start Guide",
   "description": "[Constraints]:\n1. The content must be in English.\n2. The content must be in Markdown format.\n3. The content must be no more than 800 words.\n4. The content must include a high-level overview, project t",
   "version": "1.0.0",
-  "last_updated": "2026-02-01T13:35:37.754091Z",
+  "last_updated": "2026-02-01T13:36:42.386654Z",
   "generated_by": "Living Repository Sentinel",
   "architectural_decisions": [
     {
-      "title": "Adopt Microservices Architecture",
-      "rationale": "To ensure scalability, maintainability, and security.",
-      "date": "N/A",
+      "title": "Use of Microservices Architecture",
+      "rationale": "To ensure scalability, maintainability, and security in the e-commerce system.",
+      "date": "2023-06-01",
       "related_files": []
     },
     {
-      "title": "Use FastAPI for Building REST API",
-      "rationale": "FastAPI offers high performance, easy-to-use API documentation, and robust features like dependency injection.",
-      "date": "N/A",
-      "related_files": []
-    },
-    {
-      "title": "Implement Repository Pattern for Data Access Layer",
-      "rationale": "To abstract data access and provide a clean interface for CRUD operations.",
-      "date": "N/A",
+      "title": "Employing Repository Pattern",
+      "rationale": "Abstraction of data access layer for better separation of concerns and easier maintenance.",
+      "date": "2023-06-01",
       "related_files": [
         "OrderRepository.py"
       ]
     },
     {
-      "title": "Employ Dependency Injection for Managing Dependencies",
-      "rationale": "To facilitate modular code, testability, and maintainability.",
-      "date": "N/A",
+      "title": "Dependency Injection via FastAPI",
+      "rationale": "To manage dependencies efficiently and enhance testability.",
+      "date": "2023-06-01",
       "related_files": []
     },
     {
-      "title": "Define Custom Exceptions Using FastAPI's HTTPException",
-      "rationale": "To handle different error scenarios gracefully and return appropriate HTTP responses.",
-      "date": "N/A",
+      "title": "Custom Error Handling with HTTPException",
+      "rationale": "To provide clear and consistent error responses for various scenarios.",
+      "date": "2023-06-01",
       "related_files": []
     },
     {
-      "title": "Support Multiple Payment Providers with PaymentProcessor Class",
-      "rationale": "To offer flexibility and future-proof the payment processing functionality.",
-      "date": "N/A",
+      "title": "Support for Multiple Payment Providers",
+      "rationale": "To offer flexibility and choice for customers during checkout.",
+      "date": "2023-06-01",
       "related_files": [
         "payments/processor.py"
       ]
     },
     {
-      "title": "Enforce Authentication via JWT Tokens",
-      "rationale": "For secure user identification and authorization.",
-      "date": "N/A",
+      "title": "JWT Token-based Authentication",
+      "rationale": "For secure and stateless authentication in the microservices environment.",
+      "date": "2023-06-01",
       "related_files": []
     },
     {
-      "title": "Authorize Users Based on Their Role",
-      "rationale": "To ensure proper access control and data privacy.",
-      "date": "N/A",
+      "title": "Authorization Enforcement at Endpoints",
+      "rationale": "To ensure that only authorized users can perform specific actions on their orders.",
+      "date": "2023-06-01",
       "related_files": []
     },
     {
-      "title": "Utilize ORM for Database Interactions",
-      "rationale": "To simplify database operations and promote code readability.",
-      "date": "N/A",
+      "title": "ORM for Database Interactions",
+      "rationale": "To simplify database operations and improve code readability.",
+      "date": "2023-06-01",
       "related_files": []
     },
     {
-      "title": "Send Confirmation Emails After Order Creation",
-      "rationale": "To enhance user experience and provide order verification.",
-      "date": "N/A",
+      "title": "Confirmation Emails via send_order_confirmation Function",
+      "rationale": "To notify customers about successful order creation and enhance user experience.",
+      "date": "2023-06-01",
       "related_files": [
         "utils/notifications.py"
       ]
@@ -75,7 +69,7 @@
   "components": [
     {
       "name": "orders",
-      "description": "REST API endpoints for order management",
+      "description": "REST API endpoints for order management, including create, get, list, and cancel operations.",
       "files": [
         "src/api/orders.py"
       ],
@@ -89,53 +83,70 @@
     },
     {
       "name": "processor",
-      "description": "Handles payment processing for the e-commerce API",
+      "description": "Placeholder for payment processing logic, supports multiple payment providers and transaction management.",
       "files": [
         "src/payments/processor.py"
       ],
-      "dependencies": []
+      "dependencies": [
+        "typing",
+        "dataclasses",
+        "enum"
+      ]
     }
   ],
   "flows": {
-    "flow_name": "Order Management Process",
-    "description": "The process involves creating, retrieving, listing, and cancelling orders through REST API endpoints.",
-    "steps": [
-      {
-        "step": 1,
-        "description": "User creates a new order by providing order items, shipping address, and payment method.",
-        "file": "relevant_file.py"
-      },
-      {
-        "step": 2,
-        "description": "Check if the order already exists based on the provided order ID.",
-        "file": "relevant_file.py"
-      },
-      {
-        "step": 3,
-        "description": "Retrieve order details if the order exists; otherwise, create a new order.",
-        "file": "relevant_file.py"
-      },
-      {
-        "step": 4,
-        "description": "Get order details using the order ID.",
-        "file": "relevant_file.py"
-      },
-      {
-        "step": 5,
-        "description": "Check if the order was found using the order ID.",
-        "file": "relevant_file.py"
-      },
-      {
-        "step": 6,
-        "description": "List all orders for the current user, supporting pagination.",
-        "file": "relevant_file.py"
-      },
-      {
-        "step": 7,
-        "description": "Cancel a pending order using the order ID.",
-        "file": "relevant_file.py"
-      }
-    ]
+    "Create a New Order": {
+      "description": "Allows users to create a new order by providing order items, shipping address, and payment method.",
+      "steps": [
+        {
+          "step": 1,
+          "description": "Send a POST request to '/api/orders/create' with the required order data in the request body."
+        },
+        {
+          "step": 2,
+          "description": "Validate the response to ensure successful creation of the order."
+        }
+      ]
+    },
+    "Get Order Details": {
+      "description": "Retrieves the details of a specific order by its ID.",
+      "steps": [
+        {
+          "step": 1,
+          "description": "Send a GET request to '/api/orders/{order_id}' with the order ID as a path parameter."
+        },
+        {
+          "step": 2,
+          "description": "Validate the response to ensure successful retrieval of the order details."
+        }
+      ]
+    },
+    "List User Orders": {
+      "description": "Lists all orders for the current user, supporting pagination via limit and offset parameters.",
+      "steps": [
+        {
+          "step": 1,
+          "description": "Send a GET request to '/api/orders/' with optional query parameters for limit and offset."
+        },
+        {
+          "step": 2,
+          "description": "Validate the response to ensure successful listing of orders."
+        }
+      ]
+    },
+    "Cancel an Order": {
+      "description": "Allows users to cancel a pending order.",
+      "steps": [
+        {
+          "step": 1,
+          "description": "Send a POST request to '/api/orders/{order_id}/cancel' with the order ID as a path parameter."
+        },
+        {
+          "step": 2,
+          "description": "Validate the response to ensure successful cancellation of the order."
+        }
+      ]
+    }
   },
   "file_dependencies": {
     "src/api/orders.py": [
