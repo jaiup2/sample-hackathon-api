@@ -2,76 +2,80 @@
   "project_name": "E-commerce API: High-Level Overview and Quick Start Guide",
   "description": "[Constraints]:\n1. The content must be in English.\n2. The content must be in Markdown format.\n3. The content must be no more than 800 words.\n4. The content must include a high-level overview, project t",
   "version": "1.0.0",
-  "last_updated": "2026-02-01T13:38:58.946550Z",
+  "last_updated": "2026-02-01T13:40:02.015657Z",
   "generated_by": "Living Repository Sentinel",
   "architectural_decisions": [
     {
-      "title": "Use of Microservices Architecture",
-      "rationale": "To create a scalable and maintainable system that can be developed, deployed, and scaled independently.",
+      "title": "Use Microservices Architecture",
+      "rationale": "To ensure scalability, maintainability, and security.",
       "date": "N/A",
       "related_files": []
     },
     {
-      "title": "FastAPI and Pydantic for Building REST API",
-      "rationale": "For efficient development, robust data validation, and easy integration with other services.",
+      "title": "Employ Repository Pattern",
+      "rationale": "To abstract the data access layer and provide CRUD operations.",
       "date": "N/A",
       "related_files": [
-        "order_api/main.py",
-        "order_api/models.py"
+        "OrderRepository.py"
       ]
     },
     {
-      "title": "Repository Pattern for Data Access Layer",
-      "rationale": "To abstract the data access logic and provide a clean interface for CRUD operations.",
+      "title": "Utilize Dependency Injection",
+      "rationale": "To manage dependencies efficiently.",
+      "date": "N/A",
+      "related_files": []
+    },
+    {
+      "title": "Implement Error Handling with Custom Exceptions",
+      "rationale": "To handle various error scenarios effectively.",
       "date": "N/A",
       "related_files": [
-        "order_repository.py"
+        "OrderAPI.py"
       ]
     },
     {
-      "title": "Dependency Injection for Managing Dependencies",
-      "rationale": "To ensure loose coupling between components and improve testability.",
+      "title": "Design Data Flow for Order Management",
+      "rationale": "To define clear processes for order creation, retrieval, listing, and cancellation.",
       "date": "N/A",
       "related_files": [
-        "order_api/main.py"
+        "OrderAPI.py"
       ]
     },
     {
-      "title": "Custom Error Handling Using FastAPI's HTTPException",
-      "rationale": "To provide meaningful error responses and simplify error handling.",
-      "date": "N/A",
-      "related_files": [
-        "order_api/main.py",
-        "order_api/errors.py"
-      ]
-    },
-    {
-      "title": "Support for Multiple Payment Providers",
-      "rationale": "To offer flexibility and cater to different user preferences.",
+      "title": "Integrate Multiple Payment Providers",
+      "rationale": "To support diverse payment options.",
       "date": "N/A",
       "related_files": [
         "payments/processor.py"
       ]
     },
     {
-      "title": "JWT Tokens for Authentication and Authorization",
-      "rationale": "To ensure secure authentication and authorization mechanisms.",
+      "title": "Enforce Authentication via JWT Tokens",
+      "rationale": "To securely authenticate users.",
       "date": "N/A",
       "related_files": [
-        "auth/jwt.py"
+        "auth.py"
       ]
     },
     {
-      "title": "ORM for Database Interactions",
-      "rationale": "To facilitate seamless interaction with the relational database.",
+      "title": "Authorize Access to Orders",
+      "rationale": "To protect sensitive order information.",
       "date": "N/A",
       "related_files": [
-        "order_repository.py"
+        "OrderAPI.py"
       ]
     },
     {
-      "title": "Notifications for Order Confirmations",
-      "rationale": "To enhance user experience by providing timely notifications about order status changes.",
+      "title": "Use ORM for Database Interactions",
+      "rationale": "To simplify database operations and improve code readability.",
+      "date": "N/A",
+      "related_files": [
+        "models.py"
+      ]
+    },
+    {
+      "title": "Send Confirmation Emails on Order Creation",
+      "rationale": "To notify customers about successful order placement.",
       "date": "N/A",
       "related_files": [
         "utils/notifications.py"
@@ -99,35 +103,31 @@
       "files": [
         "src/payments/processor.py"
       ],
-      "dependencies": [
-        "typing",
-        "dataclasses",
-        "enum"
-      ]
+      "dependencies": []
     }
   ],
   "flows": {
-    "Create and Manage Orders": {
-      "description": "API endpoints for creating, managing, and retrieving orders in an e-commerce application.",
+    "Order Management": {
+      "description": "API endpoints for order management in the e-commerce application.",
       "steps": [
         {
           "step": 1,
-          "description": "Create a new order by sending a POST request to /api/orders/create with order items, shipping address, and payment method.",
+          "description": "Create a new order using POST /api/orders/create endpoint with order items, shipping address, and payment method.",
           "file": "relevant_file.py"
         },
         {
           "step": 2,
-          "description": "Retrieve the details of a specific order using a GET request to /api/orders/{order_id}. Only the owner of the order can access it.",
+          "description": "Retrieve order details using GET /api/orders/{order_id} endpoint. Only accessible for the respective user's orders.",
           "file": "relevant_file.py"
         },
         {
           "step": 3,
-          "description": "List all orders for the current user with pagination support via limit and offset parameters on a GET request to /api/orders/.",
+          "description": "List user orders using GET /api/orders/ endpoint with optional limit and offset query parameters.",
           "file": "relevant_file.py"
         },
         {
           "step": 4,
-          "description": "Cancel a pending order by sending a POST request to /api/orders/{order_id}/cancel. Processing or shipped orders cannot be cancelled.",
+          "description": "Cancel a pending order using POST /api/orders/{order_id}/cancel endpoint.",
           "file": "relevant_file.py"
         }
       ]
