@@ -87,4 +87,4 @@ To cancel an order, send a POST request to the `/api/orders/{order_id}/cancel` e
 - Ensure that the order status is 'pending' before attempting to cancel it.
 - Orders with statuses 'processing' or 'shipped' cannot be cancelled.
 
-By following these steps, you can quickly set up and start using the E-commerce API for managing orders in your e-commerce platform.
+By following these steps and guidelines, you can quickly set up and start using the E-commerce API for managing orders in your e-commerce platform.
