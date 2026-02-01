@@ -2,74 +2,76 @@
   "project_name": "E-commerce API: High-Level Overview and Quick Start Guide",
   "description": "[Constraints]:\n1. The content must be in English.\n2. The content must be in Markdown format.\n3. The content must be no more than 800 words.\n4. The content must include a high-level overview, project t",
   "version": "1.0.0",
-  "last_updated": "2026-02-01T13:37:50.348208Z",
+  "last_updated": "2026-02-01T13:38:58.946550Z",
   "generated_by": "Living Repository Sentinel",
   "architectural_decisions": [
     {
       "title": "Use of Microservices Architecture",
-      "rationale": "To ensure scalability, maintainability, and security.",
+      "rationale": "To create a scalable and maintainable system that can be developed, deployed, and scaled independently.",
       "date": "N/A",
       "related_files": []
     },
     {
-      "title": "FastAPI for Building REST API",
-      "rationale": "FastAPI provides high performance, easy-to-use routing, and built-in support for data validation with Pydantic.",
+      "title": "FastAPI and Pydantic for Building REST API",
+      "rationale": "For efficient development, robust data validation, and easy integration with other services.",
       "date": "N/A",
-      "related_files": []
-    },
-    {
-      "title": "Pydantic for Data Validation",
-      "rationale": "Pydantic simplifies data validation and provides type hints for better code readability.",
-      "date": "N/A",
-      "related_files": []
+      "related_files": [
+        "order_api/main.py",
+        "order_api/models.py"
+      ]
     },
     {
       "title": "Repository Pattern for Data Access Layer",
-      "rationale": "Abstracts the data access layer, providing methods for CRUD operations and improving testability.",
+      "rationale": "To abstract the data access logic and provide a clean interface for CRUD operations.",
       "date": "N/A",
-      "related_files": []
+      "related_files": [
+        "order_repository.py"
+      ]
     },
     {
-      "title": "Dependency Injection for Dependency Management",
-      "rationale": "FastAPI's dependency injection helps manage dependencies like the current user and payment processor.",
+      "title": "Dependency Injection for Managing Dependencies",
+      "rationale": "To ensure loose coupling between components and improve testability.",
       "date": "N/A",
-      "related_files": []
+      "related_files": [
+        "order_api/main.py"
+      ]
     },
     {
-      "title": "Custom Exceptions with FastAPI's HTTPException",
-      "rationale": "HTTPException allows defining custom error handlers for various error scenarios.",
+      "title": "Custom Error Handling Using FastAPI's HTTPException",
+      "rationale": "To provide meaningful error responses and simplify error handling.",
       "date": "N/A",
-      "related_files": []
+      "related_files": [
+        "order_api/main.py",
+        "order_api/errors.py"
+      ]
     },
     {
-      "title": "Payment Processing with Multiple Providers Support",
-      "rationale": "Supporting Stripe, PayPal, and Square enables flexibility in payment options.",
+      "title": "Support for Multiple Payment Providers",
+      "rationale": "To offer flexibility and cater to different user preferences.",
       "date": "N/A",
       "related_files": [
         "payments/processor.py"
       ]
     },
     {
-      "title": "JWT Tokens for Authentication",
-      "rationale": "JSON Web Tokens provide secure authentication for accessing protected resources.",
+      "title": "JWT Tokens for Authentication and Authorization",
+      "rationale": "To ensure secure authentication and authorization mechanisms.",
       "date": "N/A",
-      "related_files": []
-    },
-    {
-      "title": "Authorization Enforcement at Endpoints",
-      "rationale": "Enforcing authorization at specific endpoints ensures data privacy and security.",
-      "date": "N/A",
-      "related_files": []
+      "related_files": [
+        "auth/jwt.py"
+      ]
     },
     {
       "title": "ORM for Database Interactions",
-      "rationale": "Using an Object-Relational Mapping improves code readability and reduces boilerplate code.",
+      "rationale": "To facilitate seamless interaction with the relational database.",
       "date": "N/A",
-      "related_files": []
+      "related_files": [
+        "order_repository.py"
+      ]
     },
     {
-      "title": "Confirmation Emails via send_order_confirmation Function",
-      "rationale": "Automated notifications improve user experience by confirming order creation.",
+      "title": "Notifications for Order Confirmations",
+      "rationale": "To enhance user experience by providing timely notifications about order status changes.",
       "date": "N/A",
       "related_files": [
         "utils/notifications.py"
@@ -78,8 +80,8 @@
   ],
   "components": [
     {
-      "name": "orders.py",
-      "description": "Provides REST API endpoints for order management, including create, get, list, and cancel order functionalities.",
+      "name": "orders",
+      "description": "Provides REST API endpoints for order management.",
       "files": [
         "src/api/orders.py"
       ],
@@ -92,15 +94,45 @@
       ]
     },
     {
-      "name": "processor.py",
-      "description": "Handles payment processing for the e-commerce API, supporting multiple payment providers and transaction management.",
+      "name": "processor",
+      "description": "Handles payment processing for the e-commerce API.",
       "files": [
         "src/payments/processor.py"
       ],
-      "dependencies": []
+      "dependencies": [
+        "typing",
+        "dataclasses",
+        "enum"
+      ]
     }
   ],
-  "flows": {},
+  "flows": {
+    "Create and Manage Orders": {
+      "description": "API endpoints for creating, managing, and retrieving orders in an e-commerce application.",
+      "steps": [
+        {
+          "step": 1,
+          "description": "Create a new order by sending a POST request to /api/orders/create with order items, shipping address, and payment method.",
+          "file": "relevant_file.py"
+        },
+        {
+          "step": 2,
+          "description": "Retrieve the details of a specific order using a GET request to /api/orders/{order_id}. Only the owner of the order can access it.",
+          "file": "relevant_file.py"
+        },
+        {
+          "step": 3,
+          "description": "List all orders for the current user with pagination support via limit and offset parameters on a GET request to /api/orders/.",
+          "file": "relevant_file.py"
+        },
+        {
+          "step": 4,
+          "description": "Cancel a pending order by sending a POST request to /api/orders/{order_id}/cancel. Processing or shipped orders cannot be cancelled.",
+          "file": "relevant_file.py"
+        }
+      ]
+    }
+  },
   "file_dependencies": {
     "src/api/orders.py": [
       "src/utils/notifications.py",
