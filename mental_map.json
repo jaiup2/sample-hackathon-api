@@ -2,66 +2,74 @@
   "project_name": "E-commerce API: High-Level Overview and Quick Start Guide",
   "description": "[Constraints]:\n1. The content must be in English.\n2. The content must be in Markdown format.\n3. The content must be no more than 800 words.\n4. The content must include a high-level overview, project t",
   "version": "1.0.0",
-  "last_updated": "2026-02-01T14:10:40.378773Z",
+  "last_updated": "2026-02-01T14:11:53.083669Z",
   "generated_by": "Living Repository Sentinel",
   "architectural_decisions": [
     {
-      "title": "Use of Microservices Architecture",
-      "rationale": "To ensure scalability, maintainability, and security.",
+      "title": "Microservices Architecture",
+      "rationale": "Designed for scalability, maintainability, and security.",
       "date": "N/A",
       "related_files": []
     },
     {
-      "title": "Employment of Repository Pattern",
-      "rationale": "To abstract the data access layer and provide CRUD operations.",
+      "title": "Use of FastAPI and Pydantic",
+      "rationale": "FastAPI provides efficient and easy-to-use API development, while Pydantic offers robust data validation.",
       "date": "N/A",
       "related_files": [
-        "OrderRepository.py"
+        "api/main.py"
       ]
     },
     {
-      "title": "Implementation of Dependency Injection",
-      "rationale": "To manage dependencies effectively, such as the current user and payment processor.",
+      "title": "Repository Pattern Implementation",
+      "rationale": "Abstracts data access layer for better organization and separation of concerns.",
       "date": "N/A",
       "related_files": [
-        "main.py"
+        "repositories/order_repository.py"
       ]
     },
     {
-      "title": "Custom Error Handling Using HTTPException",
-      "rationale": "To handle various error scenarios appropriately.",
+      "title": "Dependency Injection with FastAPI",
+      "rationale": "Simplifies dependency management and promotes modularity.",
       "date": "N/A",
       "related_files": [
-        "main.py"
+        "api/main.py"
       ]
     },
     {
-      "title": "Multi-Provider Payment Processing Support",
-      "rationale": "To offer flexibility in payment options.",
+      "title": "Custom Error Handling with HTTPException",
+      "rationale": "Provides clear and consistent error responses for various scenarios.",
+      "date": "N/A",
+      "related_files": [
+        "api/main.py"
+      ]
+    },
+    {
+      "title": "Multi-provider Payment Support",
+      "rationale": "Allows flexibility in choosing payment processors based on specific needs.",
       "date": "N/A",
       "related_files": [
         "payments/processor.py"
       ]
     },
     {
-      "title": "JWT Token-based Authentication",
-      "rationale": "To securely authenticate clients and enforce authorization.",
+      "title": "JWT Token Authentication",
+      "rationale": "Ensures secure authentication and authorization for API endpoints.",
       "date": "N/A",
       "related_files": [
-        "auth/token.py"
+        "api/security/auth.py"
       ]
     },
     {
-      "title": "ORM Usage for Database Interactions",
-      "rationale": "To simplify database operations and improve code readability.",
+      "title": "ORM for Database Interactions",
+      "rationale": "Facilitates easier and more efficient database operations through abstraction.",
       "date": "N/A",
       "related_files": [
-        "models.py"
+        "repositories/order_repository.py"
       ]
     },
     {
-      "title": "Email Confirmation on Order Creation",
-      "rationale": "To notify customers about their newly created orders.",
+      "title": "Email Notifications for Order Confirmation",
+      "rationale": "Enhances user experience by notifying customers about successful order creation.",
       "date": "N/A",
       "related_files": [
         "utils/notifications.py"
@@ -70,8 +78,8 @@
   ],
   "components": [
     {
-      "name": "orders.py",
-      "description": "Provides REST API endpoints for order management.",
+      "name": "Orders API",
+      "description": "REST API endpoints for order management in an e-commerce application.",
       "files": [
         "src/api/orders.py"
       ],
@@ -82,118 +90,27 @@
         "src.database.orders",
         "src.utils.notifications"
       ]
-    },
-    {
-      "name": "processor.py",
-      "description": "Handles payment processing for the e-commerce API.",
-      "files": [
-        "src/payments/processor.py"
-      ],
-      "dependencies": [
-        "typing",
-        "dataclasses",
-        "enum"
-      ]
     }
   ],
   "flows": {
-    "Create a New Order": {
-      "description": "This endpoint allows users to create a new order by providing order items, shipping address, and payment method.",
+    "Create and Manage Orders": {
+      "description": "API endpoints for creating and managing orders in an e-commerce application.",
       "steps": [
         {
           "step": 1,
-          "description": "Send a POST request to /api/orders/create",
-          "file": "relevant_file.py"
+          "description": "Create a new order using POST /api/orders/create with request body containing items, shipping address, and payment method."
         },
         {
           "step": 2,
-          "description": "Include request body with items, shipping address, and payment method",
-          "file": "relevant_file.py"
+          "description": "Retrieve order details using GET /api/orders/{order_id}. Users can only access their own orders."
         },
         {
           "step": 3,
-          "description": "Handle response containing order_id, status, total, items, created_at",
-          "file": "relevant_file.py"
+          "description": "List all orders for the current user using GET /api/orders/. Supports pagination via limit and offset query parameters."
         },
         {
           "step": 4,
-          "description": "Handle errors: HTTPException with status code 400 for validation failure; HTTPException with status code 500 for payment processing failure",
-          "file": "relevant_file.py"
-        }
-      ]
-    },
-    "Get Order Details": {
-      "description": "This endpoint retrieves the details of a specific order by its ID. Users can only access their own orders.",
-      "steps": [
-        {
-          "step": 1,
-          "description": "Send a GET request to /api/orders/{order_id}",
-          "file": "relevant_file.py"
-        },
-        {
-          "step": 2,
-          "description": "Provide order_id as a path parameter",
-          "file": "relevant_file.py"
-        },
-        {
-          "step": 3,
-          "description": "Handle response containing order_id, status, total, items, created_at",
-          "file": "relevant_file.py"
-        },
-        {
-          "step": 4,
-          "description": "Handle errors: HTTPException with status code 404 for order not found; HTTPException with status code 403 for unauthorized access",
-          "file": "relevant_file.py"
-        }
-      ]
-    },
-    "List User Orders": {
-      "description": "This endpoint lists all orders for the current user, supporting pagination via limit and offset parameters.",
-      "steps": [
-        {
-          "step": 1,
-          "description": "Send a GET request to /api/orders/",
-          "file": "relevant_file.py"
-        },
-        {
-          "step": 2,
-          "description": "Include query parameters limit and offset for pagination",
-          "file": "relevant_file.py"
-        },
-        {
-          "step": 3,
-          "description": "Handle response containing list of orders with order_id, status, total, items, created_at",
-          "file": "relevant_file.py"
-        },
-        {
-          "step": 4,
-          "description": "Handle error: HTTPException with status code 400 for invalid parameters",
-          "file": "relevant_file.py"
-        }
-      ]
-    },
-    "Cancel an Order": {
-      "description": "This endpoint allows users to cancel a pending order. Orders that are processing or shipped cannot be cancelled.",
-      "steps": [
-        {
-          "step": 1,
-          "description": "Send a POST request to /api/orders/{order_id}/cancel",
-          "file": "relevant_file.py"
-        },
-        {
-          "step": 2,
-          "description": "Provide order_id as a path parameter",
-          "file": "relevant_file.py"
-        },
-        {
-          "step": 3,
-          "description": "Handle response message indicating order cancellation success",
-          "file": "relevant_file.py"
-        },
-        {
-          "step": 4,
-          "description": "Handle errors: HTTPException with status code 404 for order not found; HTTPException with status code 403 for unauthorized access; HTTPException with status code 400 for invalid order status",
-          "file": "relevant_file.py"
+          "description": "Cancel a pending order using POST /api/orders/{order_id}/cancel. Orders that are processing or shipped cannot be cancelled."
         }
       ]
     }
