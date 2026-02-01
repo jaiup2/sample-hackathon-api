@@ -2,74 +2,82 @@
   "project_name": "E-commerce API: High-Level Overview and Quick Start Guide",
   "description": "[Constraints]:\n1. The content must be in English.\n2. The content must be in Markdown format.\n3. The content must be no more than 800 words.\n4. The content must include a high-level overview, project t",
   "version": "1.0.0",
-  "last_updated": "2026-02-01T14:08:31.019214Z",
+  "last_updated": "2026-02-01T14:09:35.893572Z",
   "generated_by": "Living Repository Sentinel",
   "architectural_decisions": [
     {
-      "title": "Use Microservices Architecture",
-      "rationale": "To ensure a scalable and maintainable system",
+      "title": "Microservices Architecture",
+      "rationale": "To ensure scalability, maintainability, and security.",
       "date": "N/A",
       "related_files": []
     },
     {
-      "title": "Employ Repository Pattern for Data Access Layer",
-      "rationale": "To abstract data access operations and provide a clean interface for CRUD operations",
+      "title": "Use of FastAPI for REST API",
+      "rationale": "FastAPI provides fast performance, easy to use, and built-in support for asynchronous code.",
       "date": "N/A",
       "related_files": [
-        "OrderRepository.py"
+        "app/main.py"
       ]
     },
     {
-      "title": "Utilize Dependency Injection for Dependency Management",
-      "rationale": "To simplify dependency management and improve testability",
+      "title": "Pydantic for Data Validation",
+      "rationale": "Pydantic offers robust data validation, automatic generation of schemas, and easy integration with FastAPI.",
+      "date": "N/A",
+      "related_files": [
+        "models/order.py"
+      ]
+    },
+    {
+      "title": "Repository Pattern for Data Access Layer",
+      "rationale": "The Repository Pattern simplifies data access logic, promotes separation of concerns, and enables easier testing.",
+      "date": "N/A",
+      "related_files": [
+        "repositories/order_repository.py"
+      ]
+    },
+    {
+      "title": "Dependency Injection via FastAPI",
+      "rationale": "Dependency injection improves modularity, testability, and maintainability.",
       "date": "N/A",
       "related_files": [
         "main.py"
       ]
     },
     {
-      "title": "Implement Custom Error Handling with HTTPExceptions",
-      "rationale": "To handle various error scenarios effectively and return appropriate responses",
+      "title": "Custom Error Handling with HTTPException",
+      "rationale": "HTTPException allows for custom error responses and better control over error handling.",
       "date": "N/A",
       "related_files": [
         "main.py"
       ]
     },
     {
-      "title": "Design Data Flow for Order Operations",
-      "rationale": "To define clear steps for order creation, retrieval, listing, and cancellation",
-      "date": "N/A",
-      "related_files": [
-        "main.py"
-      ]
-    },
-    {
-      "title": "Support Multiple Payment Providers",
-      "rationale": "To increase flexibility and cater to diverse payment preferences",
+      "title": "Support for Multiple Payment Providers",
+      "rationale": "Enabling flexibility in choosing payment gateways based on business needs and regional preferences.",
       "date": "N/A",
       "related_files": [
         "payments/processor.py"
       ]
     },
     {
-      "title": "Enforce Authentication via JWT Tokens",
-      "rationale": "To securely authenticate clients and authorize access to resources",
+      "title": "JWT Token-based Authentication",
+      "rationale": "JWT tokens provide secure, stateless authentication and simplify authorization enforcement.",
       "date": "N/A",
       "related_files": [
-        "main.py"
+        "auth/security.py"
       ]
     },
     {
-      "title": "Apply ORM for Database Interactions",
-      "rationale": "To facilitate efficient and type-safe database operations",
+      "title": "ORM for Database Interactions",
+      "rationale": "ORM simplifies database operations, reduces boilerplate code, and promotes code reusability.",
       "date": "N/A",
       "related_files": [
-        "OrderRepository.py"
+        "repositories/base_repository.py"
       ]
     },
     {
-      "title": "Send Confirmation Emails on Order Creation",
-      "rationale": "To notify customers about order placement and enhance user experience",
+      "title": "Email Confirmation Notifications",
+      "rationale": "Confirmation emails enhance user experience by providing immediate feedback on order creation.",
       "date": "N/A",
       "related_files": [
         "utils/notifications.py"
@@ -83,7 +91,13 @@
       "files": [
         "src/api/orders.py"
       ],
-      "dependencies": []
+      "dependencies": [
+        "fastapi",
+        "pydantic",
+        "src.auth",
+        "src.database.orders",
+        "src.utils.notifications"
+      ]
     },
     {
       "name": "processor",
@@ -91,11 +105,7 @@
       "files": [
         "src/payments/processor.py"
       ],
-      "dependencies": [
-        "typing",
-        "dataclasses",
-        "enum"
-      ]
+      "dependencies": []
     }
   ],
   "flows": {
@@ -104,11 +114,23 @@
       "steps": [
         {
           "step": 1,
-          "description": "Send a POST request to '/api/orders/create' with the required data in the request body."
+          "description": "Send POST request to /api/orders/create",
+          "file": "relevant_file.py"
         },
         {
           "step": 2,
-          "description": "Verify the response status code. If it's 201, the order was created successfully; otherwise, handle the error based on the HTTPException status code."
+          "description": "Include request body with items, shipping address, and payment method",
+          "file": "relevant_file.py"
+        },
+        {
+          "step": 3,
+          "description": "Handle response containing order ID, status, total, items, created at timestamp",
+          "file": "relevant_file.py"
+        },
+        {
+          "step": 4,
+          "description": "Handle error cases: 400 (validation failure), 500 (payment processing failure)",
+          "file": "relevant_file.py"
         }
       ]
     },
@@ -117,24 +139,43 @@
       "steps": [
         {
           "step": 1,
-          "description": "Send a GET request to '/api/orders/{order_id}' where {order_id} is the unique identifier of the order you want to retrieve."
+          "description": "Send GET request to /api/orders/{order_id}",
+          "file": "relevant_file.py"
         },
         {
           "step": 2,
-          "description": "Check the response status code. If it's 200, the order details were retrieved successfully; otherwise, handle the error based on the HTTPException status code."
+          "description": "Handle response containing order ID, status, total, items, created at timestamp",
+          "file": "relevant_file.py"
+        },
+        {
+          "step": 3,
+          "description": "Handle error cases: 404 (order not found), 403 (unauthorized access)",
+          "file": "relevant_file.py"
         }
       ]
     },
     "List User Orders": {
-      "description": "This endpoint lists all orders for the current user, supporting pagination via 'limit' and 'offset' parameters.",
+      "description": "This endpoint lists all orders for the current user, supporting pagination via limit and offset parameters.",
       "steps": [
         {
           "step": 1,
-          "description": "Send a GET request to '/api/orders/' with optional query parameters 'limit' and 'offset'."
+          "description": "Send GET request to /api/orders/",
+          "file": "relevant_file.py"
         },
         {
           "step": 2,
-          "description": "Check the response status code. If it's 200, the list of orders was retrieved successfully; otherwise, handle the error based on the HTTPException status code."
+          "description": "Include query parameters for limit and offset",
+          "file": "relevant_file.py"
+        },
+        {
+          "step": 3,
+          "description": "Handle response containing list of orders",
+          "file": "relevant_file.py"
+        },
+        {
+          "step": 4,
+          "description": "Handle error case: 400 (invalid parameters)",
+          "file": "relevant_file.py"
         }
       ]
     },
@@ -143,11 +184,18 @@
       "steps": [
         {
           "step": 1,
-          "description": "Send a POST request to '/api/orders/{order_id}/cancel' where {order_id} is the unique identifier of the order you want to cancel."
+          "description": "Send POST request to /api/orders/{order_id}/cancel",
+          "file": "relevant_file.py"
         },
         {
           "step": 2,
-          "description": "Check the response status code. If it's 200, the order was cancelled successfully; otherwise, handle the error based on the HTTPException status code."
+          "description": "Handle response containing cancellation success message",
+          "file": "relevant_file.py"
+        },
+        {
+          "step": 3,
+          "description": "Handle error cases: 404 (order not found), 403 (unauthorized access), 400 (order status not 'pending')",
+          "file": "relevant_file.py"
         }
       ]
     }
@@ -188,6 +236,11 @@
     ],
     "src/database/connection.py": [
       "functools"
+    ],
+    "src/analytics/dashboard.py": [
+      "dataclasses",
+      "asyncio",
+      "enum"
     ],
     "src/analytics/engine.py": [
       "dataclasses",
