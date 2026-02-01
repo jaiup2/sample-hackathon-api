@@ -2,65 +2,75 @@
   "project_name": "E-commerce API: High-Level Overview and Quick Start Guide",
   "description": "[Constraints]:\n1. The content must be in English.\n2. The content must be in Markdown format.\n3. The content must be no more than 800 words.\n4. The content must include a high-level overview, project t",
   "version": "1.0.0",
-  "last_updated": "2026-02-01T13:36:42.386654Z",
+  "last_updated": "2026-02-01T13:37:50.348208Z",
   "generated_by": "Living Repository Sentinel",
   "architectural_decisions": [
     {
       "title": "Use of Microservices Architecture",
-      "rationale": "To ensure scalability, maintainability, and security in the e-commerce system.",
-      "date": "2023-06-01",
+      "rationale": "To ensure scalability, maintainability, and security.",
+      "date": "N/A",
       "related_files": []
     },
     {
-      "title": "Employing Repository Pattern",
-      "rationale": "Abstraction of data access layer for better separation of concerns and easier maintenance.",
-      "date": "2023-06-01",
-      "related_files": [
-        "OrderRepository.py"
-      ]
-    },
-    {
-      "title": "Dependency Injection via FastAPI",
-      "rationale": "To manage dependencies efficiently and enhance testability.",
-      "date": "2023-06-01",
+      "title": "FastAPI for Building REST API",
+      "rationale": "FastAPI provides high performance, easy-to-use routing, and built-in support for data validation with Pydantic.",
+      "date": "N/A",
       "related_files": []
     },
     {
-      "title": "Custom Error Handling with HTTPException",
-      "rationale": "To provide clear and consistent error responses for various scenarios.",
-      "date": "2023-06-01",
+      "title": "Pydantic for Data Validation",
+      "rationale": "Pydantic simplifies data validation and provides type hints for better code readability.",
+      "date": "N/A",
       "related_files": []
     },
     {
-      "title": "Support for Multiple Payment Providers",
-      "rationale": "To offer flexibility and choice for customers during checkout.",
-      "date": "2023-06-01",
+      "title": "Repository Pattern for Data Access Layer",
+      "rationale": "Abstracts the data access layer, providing methods for CRUD operations and improving testability.",
+      "date": "N/A",
+      "related_files": []
+    },
+    {
+      "title": "Dependency Injection for Dependency Management",
+      "rationale": "FastAPI's dependency injection helps manage dependencies like the current user and payment processor.",
+      "date": "N/A",
+      "related_files": []
+    },
+    {
+      "title": "Custom Exceptions with FastAPI's HTTPException",
+      "rationale": "HTTPException allows defining custom error handlers for various error scenarios.",
+      "date": "N/A",
+      "related_files": []
+    },
+    {
+      "title": "Payment Processing with Multiple Providers Support",
+      "rationale": "Supporting Stripe, PayPal, and Square enables flexibility in payment options.",
+      "date": "N/A",
       "related_files": [
         "payments/processor.py"
       ]
     },
     {
-      "title": "JWT Token-based Authentication",
-      "rationale": "For secure and stateless authentication in the microservices environment.",
-      "date": "2023-06-01",
+      "title": "JWT Tokens for Authentication",
+      "rationale": "JSON Web Tokens provide secure authentication for accessing protected resources.",
+      "date": "N/A",
       "related_files": []
     },
     {
       "title": "Authorization Enforcement at Endpoints",
-      "rationale": "To ensure that only authorized users can perform specific actions on their orders.",
-      "date": "2023-06-01",
+      "rationale": "Enforcing authorization at specific endpoints ensures data privacy and security.",
+      "date": "N/A",
       "related_files": []
     },
     {
       "title": "ORM for Database Interactions",
-      "rationale": "To simplify database operations and improve code readability.",
-      "date": "2023-06-01",
+      "rationale": "Using an Object-Relational Mapping improves code readability and reduces boilerplate code.",
+      "date": "N/A",
       "related_files": []
     },
     {
       "title": "Confirmation Emails via send_order_confirmation Function",
-      "rationale": "To notify customers about successful order creation and enhance user experience.",
-      "date": "2023-06-01",
+      "rationale": "Automated notifications improve user experience by confirming order creation.",
+      "date": "N/A",
       "related_files": [
         "utils/notifications.py"
       ]
@@ -68,8 +78,8 @@
   ],
   "components": [
     {
-      "name": "orders",
-      "description": "REST API endpoints for order management, including create, get, list, and cancel operations.",
+      "name": "orders.py",
+      "description": "Provides REST API endpoints for order management, including create, get, list, and cancel order functionalities.",
       "files": [
         "src/api/orders.py"
       ],
@@ -82,72 +92,15 @@
       ]
     },
     {
-      "name": "processor",
-      "description": "Placeholder for payment processing logic, supports multiple payment providers and transaction management.",
+      "name": "processor.py",
+      "description": "Handles payment processing for the e-commerce API, supporting multiple payment providers and transaction management.",
       "files": [
         "src/payments/processor.py"
       ],
-      "dependencies": [
-        "typing",
-        "dataclasses",
-        "enum"
-      ]
+      "dependencies": []
     }
   ],
-  "flows": {
-    "Create a New Order": {
-      "description": "Allows users to create a new order by providing order items, shipping address, and payment method.",
-      "steps": [
-        {
-          "step": 1,
-          "description": "Send a POST request to '/api/orders/create' with the required order data in the request body."
-        },
-        {
-          "step": 2,
-          "description": "Validate the response to ensure successful creation of the order."
-        }
-      ]
-    },
-    "Get Order Details": {
-      "description": "Retrieves the details of a specific order by its ID.",
-      "steps": [
-        {
-          "step": 1,
-          "description": "Send a GET request to '/api/orders/{order_id}' with the order ID as a path parameter."
-        },
-        {
-          "step": 2,
-          "description": "Validate the response to ensure successful retrieval of the order details."
-        }
-      ]
-    },
-    "List User Orders": {
-      "description": "Lists all orders for the current user, supporting pagination via limit and offset parameters.",
-      "steps": [
-        {
-          "step": 1,
-          "description": "Send a GET request to '/api/orders/' with optional query parameters for limit and offset."
-        },
-        {
-          "step": 2,
-          "description": "Validate the response to ensure successful listing of orders."
-        }
-      ]
-    },
-    "Cancel an Order": {
-      "description": "Allows users to cancel a pending order.",
-      "steps": [
-        {
-          "step": 1,
-          "description": "Send a POST request to '/api/orders/{order_id}/cancel' with the order ID as a path parameter."
-        },
-        {
-          "step": 2,
-          "description": "Validate the response to ensure successful cancellation of the order."
-        }
-      ]
-    }
-  },
+  "flows": {},
   "file_dependencies": {
     "src/api/orders.py": [
       "src/utils/notifications.py",
