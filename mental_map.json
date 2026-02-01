@@ -2,60 +2,72 @@
   "project_name": "E-commerce API: High-Level Overview and Quick Start Guide",
   "description": "[Constraints]:\n1. The content must be in English.\n2. The content must be in Markdown format.\n3. The content must be no more than 800 words.\n4. The content must include a high-level overview, project t",
   "version": "1.0.0",
-  "last_updated": "2026-02-01T14:14:01.519209Z",
+  "last_updated": "2026-02-01T14:15:06.694698Z",
   "generated_by": "Living Repository Sentinel",
   "architectural_decisions": [
     {
       "title": "Use Microservices Architecture",
-      "rationale": "To ensure a scalable, maintainable, and secure system.",
+      "rationale": "To ensure scalability, maintainability, and security.",
       "date": "N/A",
       "related_files": []
     },
     {
-      "title": "Employ Repository Pattern",
-      "rationale": "To abstract the data access layer and provide methods for CRUD operations.",
+      "title": "Implement Repository Pattern",
+      "rationale": "To abstract the data access layer and provide CRUD operations.",
       "date": "N/A",
       "related_files": [
-        "payments/repository.py"
+        "OrderRepository.py"
       ]
     },
     {
-      "title": "Implement Dependency Injection",
-      "rationale": "To manage dependencies, such as the current user and the payment processor.",
+      "title": "Utilize Dependency Injection",
+      "rationale": "To manage dependencies, such as the current user and payment processor.",
       "date": "N/A",
       "related_files": []
     },
     {
-      "title": "Custom Error Handling",
-      "rationale": "To handle various error scenarios using FastAPI's HTTPException.",
+      "title": "Employ Custom Error Handling",
+      "rationale": "To handle various error scenarios effectively.",
       "date": "N/A",
-      "related_files": []
+      "related_files": [
+        "OrderAPI.py"
+      ]
     },
     {
-      "title": "Support Multiple Payment Providers",
-      "rationale": "To enable flexibility in payment processing.",
+      "title": "Design Data Flow for Order Operations",
+      "rationale": "To handle order creation, retrieval, listing, and cancellation efficiently.",
+      "date": "N/A",
+      "related_files": [
+        "OrderAPI.py"
+      ]
+    },
+    {
+      "title": "Integrate Multiple Payment Providers",
+      "rationale": "To support different payment options and manage transaction status.",
       "date": "N/A",
       "related_files": [
         "payments/processor.py"
       ]
     },
     {
-      "title": "Use JWT Tokens for Authentication",
-      "rationale": "To securely authenticate users and enforce authorization.",
-      "date": "N/A",
-      "related_files": []
-    },
-    {
-      "title": "Implement ORM for Database Interactions",
-      "rationale": "To abstract database operations and facilitate easier maintenance.",
+      "title": "Implement JWT Token-based Authentication and Authorization",
+      "rationale": "To securely authenticate and authorize users for various operations.",
       "date": "N/A",
       "related_files": [
-        "database/repository.py"
+        "auth/jwt.py"
       ]
     },
     {
-      "title": "Send Order Confirmation Emails",
-      "rationale": "To notify customers about successfully placed orders.",
+      "title": "Use ORM for Database Interactions",
+      "rationale": "To simplify database operations and maintain consistency.",
+      "date": "N/A",
+      "related_files": [
+        "models/order.py"
+      ]
+    },
+    {
+      "title": "Send Confirmation Emails on Order Creation",
+      "rationale": "To notify customers about their newly created orders.",
       "date": "N/A",
       "related_files": [
         "utils/notifications.py"
@@ -64,7 +76,7 @@
   ],
   "components": [
     {
-      "name": "orders",
+      "name": "orders.py",
       "description": "Provides REST API endpoints for order management.",
       "files": [
         "src/api/orders.py"
@@ -78,7 +90,7 @@
       ]
     },
     {
-      "name": "processor",
+      "name": "processor.py",
       "description": "Handles payment processing for the e-commerce API.",
       "files": [
         "src/payments/processor.py"
@@ -92,11 +104,19 @@
       "steps": [
         {
           "step": 1,
-          "description": "Send a POST request to /api/orders/create with a JSON body containing order items, shipping address, and payment method."
+          "description": "User sends a POST request to '/api/orders/create' with the required order information in the request body."
         },
         {
           "step": 2,
-          "description": "Verify the response status code. Return a successful order creation if the status code is 201 Created; otherwise, handle errors according to the error handling section."
+          "description": "The system validates the request data. If validation fails, it returns a 400 HTTP exception."
+        },
+        {
+          "step": 3,
+          "description": "If payment processing is successful, the system generates a new order and returns a 201 HTTP response containing the order details."
+        },
+        {
+          "step": 4,
+          "description": "The system may also trigger additional actions such as sending order confirmation emails using the 'send_order_confirmation' function."
         }
       ]
     },
@@ -105,24 +125,40 @@
       "steps": [
         {
           "step": 1,
-          "description": "Send a GET request to /api/orders/{order_id}, replacing {order_id} with the actual order ID you want to retrieve."
+          "description": "User sends a GET request to '/api/orders/{order_id}' where '{order_id}' is the unique identifier of the order."
         },
         {
           "step": 2,
-          "description": "Verify the response status code. Return the order details if the status code is 200 OK; otherwise, handle errors according to the error handling section."
+          "description": "The system checks if the user is authorized to view the specified order."
+        },
+        {
+          "step": 3,
+          "description": "If the user is authorized, the system retrieves the order details from the database using the 'OrderRepository'."
+        },
+        {
+          "step": 4,
+          "description": "If the order is not found, the system returns a 404 HTTP exception; otherwise, it returns the order details in a 200 HTTP response."
         }
       ]
     },
     "List User Orders": {
-      "description": "This endpoint lists all orders for the current user, supporting pagination via limit and offset parameters.",
+      "description": "This endpoint lists all orders for the current user, supporting pagination via 'limit' and 'offset' parameters.",
       "steps": [
         {
           "step": 1,
-          "description": "Send a GET request to /api/orders/, optionally including query parameters for pagination such as limit and offset."
+          "description": "User sends a GET request to '/api/orders/' with optional query parameters 'limit' and 'offset'."
         },
         {
           "step": 2,
-          "description": "Verify the response status code. Return the list of orders if the status code is 200 OK; otherwise, handle errors according to the error handling section."
+          "description": "The system verifies the user's authorization to list their orders."
+        },
+        {
+          "step": 3,
+          "description": "Using the 'OrderRepository', the system fetches the user's orders based on the provided pagination parameters."
+        },
+        {
+          "step": 4,
+          "description": "If any invalid parameters are provided, the system returns a 400 HTTP exception; otherwise, it returns a 200 HTTP response containing the list of orders."
         }
       ]
     },
@@ -131,11 +167,19 @@
       "steps": [
         {
           "step": 1,
-          "description": "Send a POST request to /api/orders/{order_id}/cancel, replacing {order_id} with the actual order ID you want to cancel."
+          "description": "User sends a POST request to '/api/orders/{order_id}/cancel' where '{order_id}' is the unique identifier of the order."
         },
         {
           "step": 2,
-          "description": "Verify the response status code. Return a cancellation success message if the status code is 200 OK; otherwise, handle errors according to the error handling section."
+          "description": "The system checks if the order exists and if the user has permission to cancel it."
+        },
+        {
+          "step": 3,
+          "description": "If the order is valid and pending, the system updates the order status to 'cancelled' and returns a 200 HTTP response with a success message."
+        },
+        {
+          "step": 4,
+          "description": "If the order does not exist or is not pending, the system returns appropriate error messages with corresponding HTTP status codes."
         }
       ]
     }
