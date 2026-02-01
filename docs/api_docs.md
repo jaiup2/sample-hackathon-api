@@ -103,7 +103,7 @@ This documentation outlines the REST API endpoints for managing orders in the e-
 
 **Exceptions:**
 
-- `HTTPException`: Raised if an error occurs during the retrieval of orders.
+- `HTTPException`: Raised if an error occurs during the retrieval process.
 
 ### 4. Cancel an order
 
@@ -137,7 +137,7 @@ This documentation outlines the REST API endpoints for managing orders in the e-
 - **Pydantic**: A data validation library for Python, based on type hints.
 - **SQLAlchemy**: A SQL toolkit and Object-Relational Mapping (ORM) system for Python, providing a full suite of well-known enterprise-level persistence patterns.
 - **OAuth2**: A standard protocol for authorization, used for securing APIs.
-- **Stripe**, **PayPal**, **Square**: Payment processing providers supported by the application.
+- **Stripe**, **PayPal**, **Square**: Payment processing providers supported by the `PaymentProcessor` class.
 
 ## Error Handling
 
