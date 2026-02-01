@@ -72,7 +72,7 @@ This documentation outlines the REST API endpoints for managing orders in the e-
 
 **Exceptions:**
 
-- `HTTPException`: Raised if the order is not found or the user is not authorized to access the order.
+- `HTTPException`: Raised if the order is not found or the user is not authorized to access it.
 
 ### 3. List user orders
 
