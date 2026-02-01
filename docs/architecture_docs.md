@@ -41,16 +41,25 @@ The payment processing is handled by the `PaymentProcessor` class in the `paymen
 
 ## Authentication and Authorization
 
-Authentication is handled via JWT tokens, with the `get_current_user` function verifying the token and retrieving the user payload. Authorization is enforced at various endpoints, such as checking if the user is authorized to access their own orders or cancel a pending order.
+Authentication is handled using JSON Web Tokens (JWT), with the `verify_token` function in the `auth.py` module validating the token. Authorization is enforced at the API endpoint level, ensuring that users can only access their own orders.
 
-## Database
+## Dependencies
 
-The system uses an ORM (Object-Relational Mapping) for database interactions, with the `OrderRepository` class abstracting the database operations. The database schema includes tables for orders, order items, and users.
+- **FastAPI**: A modern, fast (high-performance), web framework for building APIs with Python 3.6+ based on standard Python type hints.
+- **Pydantic**: A data validation and settings management library for building applications using type annotations and data classes.
+- **SQLAlchemy**: An SQL toolkit and Object-Relational Mapping (ORM) system for Python, used for database operations.
+- **aiohttp**: An asynchronous HTTP client/server framework for Python, used for sending emails asynchronously.
+- **stripe**: The Stripe Python library for integrating with the Stripe API.
+- **paypalrestsdk**: The PayPal REST SDK for integrating with the PayPal API.
+- **square**: The Square API Python client library for integrating with the Square API.
 
-## Notifications
+## Future Enhancements
 
-The `send_order_confirmation` function in the `utils/notifications.py` module is responsible for sending confirmation emails when an order is created.
+- Implement rate limiting to prevent abuse.
+- Add support for more payment providers.
+- Implement order history and tracking features.
+- Enhance security measures, such as using HTTPS and implementing token refresh.
 
 ## Conclusion
 
-The Order API is a critical component of the e-commerce system, handling order management and integration with payment processing. The microservices architecture, along with the use of design patterns and best practices, ensures a scalable, maintainable, and secure system.
+The Order API is a crucial component of the e-commerce system, providing robust order management capabilities. The microservices architecture, combined with the use of design patterns and best practices, ensures scalability, maintainability, and security.
