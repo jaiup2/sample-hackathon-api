@@ -159,23 +159,33 @@ This document outlines the REST API endpoints for order management in the e-comm
 graph TD
     A[Start] --> B[Create New Order]
     B --> C{Order Exists?}
-    C -- Yes --> D[Get Order Details]
-    C -- No --> E[List User Orders]
-    D --> F[Order Cancelled?]
-    F -- Yes --> G[End]
-    F -- No --> H[Cancel Order]
-    H --> I[End]
-    E --> J[Order Cancelled?]
-    J -- Yes --> G
-    J -- No --> K[End]
+    C -- Yes --> D[Order Details Retrieved]
+    C -- No --> E[Order Created]
+    D --> F[Get Order Details]
+    F --> G{Order Found?}
+    G -- Yes --> H[Order Details Retrieved]
+    G -- No --> I[Order Not Found]
+    I --> J[List User Orders]
+    J --> K{Orders Found?}
+    K -- Yes --> L[Orders Listed]
+    K -- No --> M[No Orders Found]
+    E --> N[Cancel Order]
+    N --> O{Order Found?}
+    O -- Yes --> P[Order Cancelled]
+    O -- No --> Q[Order Not Found]
+    P --> R[End]
+    I --> R
+    M --> R
+    H --> R
+    L --> R
 ```
 
 ## Dependencies
 
-- `src.auth.verify_token`: Verifies the JWT token for authentication.
-- `src.database.orders.OrderRepository`: Manages order data in the database.
-- `src.utils.notifications.send_order_confirmation`: Sends an email confirmation for the order.
-- `src.payments.processor.PaymentProcessor`: Handles payment processing operations.
+- `verify_token`: Function to verify JWT token.
+- `send_order_confirmation`: Function to send order confirmation email.
+- `OrderRepository`: Database repository for order management.
+- `get_current_user`: Dependency for getting the current authenticated user.
 ```
 
 ## Payment Processing
@@ -190,33 +200,10 @@ class PaymentProcessor:
     # Payment processing methods go here
 ```
 
-## Error Handling
+## Notes
 
-The API endpoints handle various errors and return appropriate HTTP status codes and error messages.
-
-- `HTTPException` with status code `400` for bad requests.
-- `HTTPException` with status code `401` for unauthorized access.
-- `HTTPException` with status code `403` for forbidden access.
-- `HTTPException` with status code `404` for not found resources.
-- `HTTPException` with status code `500` for internal server errors.
-
-## Security
-
-All endpoints require authentication via JWT token. The `get_current_user` function verifies the token and retrieves the current user's information.
-
-```python
-def get_current_user(token: str = Depends(oauth2_scheme)):
-    payload = verify_token(token)
-    if not payload:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token"
-        )
-    return {'id': payload['user_id']}
-```
-
-## Conclusion
-
-This documentation provides a comprehensive overview of the order management API endpoints in the e-commerce application. It covers the endpoints, request/response formats, error handling, dependencies, payment processing, and security aspects.
-
+- All endpoints require authentication via JWT token.
+- The `create_order` endpoint validates the order items exist and are in stock, calculates the total price, processes payment, creates the order record, and sends a confirmation email.
+- The `cancel_order` endpoint only allows pending orders to be cancelled.
+- The `list_orders` endpoint supports pagination via `limit` and `offset` parameters.
 ```
