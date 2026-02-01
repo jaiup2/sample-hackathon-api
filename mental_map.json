@@ -2,66 +2,58 @@
   "project_name": "E-commerce API: High-Level Overview and Quick Start Guide",
   "description": "[Constraints]:\n1. The content must be in English.\n2. The content must be in Markdown format.\n3. The content must be no more than 800 words.\n4. The content must include a high-level overview, project t",
   "version": "1.0.0",
-  "last_updated": "2026-02-01T13:34:05.364128Z",
+  "last_updated": "2026-02-01T13:34:33.721572Z",
   "generated_by": "Living Repository Sentinel",
   "architectural_decisions": [
     {
-      "title": "Use Microservices Architecture",
+      "title": "Microservices Architecture",
       "rationale": "To ensure scalability, maintainability, and security.",
       "date": "N/A",
       "related_files": []
     },
     {
-      "title": "Employ Repository Pattern",
-      "rationale": "To abstract the data access layer and provide CRUD operations.",
+      "title": "Use of Repository Pattern",
+      "rationale": "To abstract the data access layer and provide methods for CRUD operations.",
       "date": "N/A",
       "related_files": [
         "OrderRepository.py"
       ]
     },
     {
-      "title": "Utilize Dependency Injection",
-      "rationale": "To manage dependencies, such as current user and payment processor, effectively.",
+      "title": "Dependency Injection with FastAPI",
+      "rationale": "To manage dependencies effectively, such as the current user and payment processor.",
       "date": "N/A",
       "related_files": []
     },
     {
-      "title": "Implement Custom Error Handling",
-      "rationale": "To handle various error scenarios, like invalid tokens, unauthorized access, and failed payments.",
+      "title": "Custom Error Handling with FastAPI's HTTPException",
+      "rationale": "To handle various error scenarios, ensuring proper responses and error messages.",
       "date": "N/A",
       "related_files": []
     },
     {
-      "title": "Design Data Flow for Order Management",
-      "rationale": "To enable order creation, retrieval, listing, and cancellation through specific endpoints.",
-      "date": "N/A",
-      "related_files": []
-    },
-    {
-      "title": "Support Multiple Payment Providers",
-      "rationale": "To enhance flexibility and cater to different payment preferences.",
+      "title": "Multi-Provider Payment Processing",
+      "rationale": "To support multiple payment providers, enhancing flexibility and scalability.",
       "date": "N/A",
       "related_files": [
         "payments/processor.py"
       ]
     },
     {
-      "title": "Enforce Authentication via JWT Tokens",
-      "rationale": "To securely authenticate clients and authorize access to protected resources.",
+      "title": "JWT Token-based Authentication",
+      "rationale": "To securely authenticate users and enforce authorization policies.",
       "date": "N/A",
       "related_files": []
     },
     {
-      "title": "Use ORM for Database Interactions",
+      "title": "ORM for Database Interactions",
       "rationale": "To simplify database operations and improve code readability.",
       "date": "N/A",
-      "related_files": [
-        "OrderRepository.py"
-      ]
+      "related_files": []
     },
     {
-      "title": "Send Order Confirmation Emails",
-      "rationale": "To notify customers about order creation and facilitate better user experience.",
+      "title": "Email Confirmation Notifications",
+      "rationale": "To notify users about order confirmations.",
       "date": "N/A",
       "related_files": [
         "utils/notifications.py"
@@ -71,7 +63,7 @@
   "components": [
     {
       "name": "orders",
-      "description": "REST API endpoints for order management.",
+      "description": "Provides REST API endpoints for order management.",
       "files": [
         "src/api/orders.py"
       ],
@@ -85,94 +77,43 @@
     },
     {
       "name": "processor",
-      "description": "Handles payment processing for the e-commerce API.",
+      "description": "Handles payment processing for the e-commerce API, supporting multiple payment providers and transaction management.",
       "files": [
         "src/payments/processor.py"
       ],
-      "dependencies": [
-        "typing",
-        "dataclasses",
-        "enum"
-      ]
+      "dependencies": []
     }
   ],
   "flows": {
-    "Create a New Order": {
-      "description": "Allows users to create a new order by providing order items, shipping address, and payment method.",
+    "Create and Manage Orders": {
+      "description": "API endpoints for creating and managing orders in an e-commerce application.",
       "steps": [
         {
           "step": 1,
-          "description": "Send a POST request to /api/orders/create with a JSON body containing order items, shipping address, and payment method."
+          "description": "Create a new order by sending a POST request to /api/orders/create with a JSON body containing order items, shipping address, and payment method."
         },
         {
           "step": 2,
-          "description": "Verify the response for successful order creation, containing order_id, status, total, items, and created_at fields."
+          "description": "Retrieve order details using a GET request to /api/orders/{order_id}. Only accessible to the order owner."
         },
         {
           "step": 3,
-          "description": "Handle errors as per the provided error handling guidelines."
-        }
-      ]
-    },
-    "Get Order Details": {
-      "description": "Retrieves the details of a specific order by its ID, accessible only to the respective user.",
-      "steps": [
-        {
-          "step": 1,
-          "description": "Send a GET request to /api/orders/{order_id} with the order ID as a path parameter."
+          "description": "List all orders for the current user using a GET request to /api/orders/. Supports pagination via limit and offset query parameters."
         },
         {
-          "step": 2,
-          "description": "Verify the response for order details containing order_id, status, total, items, and created_at fields."
-        },
-        {
-          "step": 3,
-          "description": "Handle errors as per the provided error handling guidelines."
-        }
-      ]
-    },
-    "List User Orders": {
-      "description": "Lists all orders for the current user, supporting pagination via limit and offset parameters.",
-      "steps": [
-        {
-          "step": 1,
-          "description": "Send a GET request to /api/orders/ with optional query parameters limit and offset."
-        },
-        {
-          "step": 2,
-          "description": "Verify the response for an array of order objects containing order_id, status, total, items, and created_at fields."
-        },
-        {
-          "step": 3,
-          "description": "Handle errors as per the provided error handling guidelines."
-        }
-      ]
-    },
-    "Cancel an Order": {
-      "description": "Allows users to cancel a pending order. Orders that are processing or shipped cannot be cancelled.",
-      "steps": [
-        {
-          "step": 1,
-          "description": "Send a POST request to /api/orders/{order_id}/cancel with the order ID as a path parameter."
-        },
-        {
-          "step": 2,
-          "description": "Verify the response for a success message indicating the order has been cancelled."
-        },
-        {
-          "step": 3,
-          "description": "Handle errors as per the provided error handling guidelines."
+          "step": 4,
+          "description": "Cancel a pending order using a POST request to /api/orders/{order_id}/cancel. Orders in processing or shipped states cannot be cancelled."
         }
       ]
     }
   },
   "file_dependencies": {
     "src/api/orders.py": [
-      "fastapi",
-      "src/auth.py",
       "src/utils/notifications.py",
       "pydantic",
-      "src/database/orders.py"
+      "src/database/orders.py",
+      "fastapi",
+      "src/auth.py"
     ],
     "src/payments/processor.py": [
       "enum",
@@ -189,8 +130,8 @@
       "abc"
     ],
     "src/auth/tokens.py": [
-      "time",
-      "jwt"
+      "jwt",
+      "time"
     ],
     "src/auth/__init__.py": [
       ".login",
