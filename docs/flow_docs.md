@@ -157,54 +157,156 @@ This document outlines the REST API endpoints for order management in the e-comm
 
 ```mermaid
 graph TD
-    A[Start] --> B[Create New Order]
+    A[Start] --> B[Create Order]
     B --> C{Order Exists?}
-    C -- Yes --> D[Order Details Retrieved]
-    C -- No --> E[Order Created]
-    D --> F[Get Order Details]
-    F --> G{Order Found?}
-    G -- Yes --> H[Order Details Retrieved]
-    G -- No --> I[Order Not Found]
-    I --> J[List User Orders]
-    J --> K{Orders Found?}
-    K -- Yes --> L[Orders Listed]
-    K -- No --> M[No Orders Found]
-    E --> N[Cancel Order]
-    N --> O{Order Found?}
-    O -- Yes --> P[Order Cancelled]
-    O -- No --> Q[Order Not Found]
-    P --> R[End]
-    I --> R
-    M --> R
-    H --> R
-    L --> R
+    C -- Yes --> D[Validate Items & Calculate Total]
+    C -- No --> E[HTTP 400]
+    D --> F[Process Payment]
+    F --> G{Payment Successful?}
+    G -- Yes --> H[Create Order in Database]
+    G -- No --> I[HTTP 500]
+    H --> J[Send Confirmation Email]
+    J --> K[Return Order Details]
+    K --> L[End]
+    E --> M[Get Order]
+    M --> N{Order Found?}
+    N -- Yes --> O[Check Authorization]
+    O -- No --> P[HTTP 403]
+    O -- Yes --> Q[Return Order Details]
+    Q --> L
+    M --> R{Order Status?}
+    R -- Pending --> S[Return Order Details]
+    R -- Not Pending --> T[HTTP 400]
+    S --> L
+    L --> U[List Orders]
+    U --> V{Valid Parameters?}
+    V -- Yes --> W[Fetch Orders]
+    V -- No --> X[HTTP 400]
+    W --> Y[Return Orders]
+    Y --> L
+    U --> Z[Cancel Order]
+    Z --> AA{Order Found?}
+    AA -- Yes --> AB[Check Authorization]
+    AB -- No --> AC[HTTP 403]
+    AB -- Yes --> AD[Check Order Status]
+    AD -- Pending --> AE[Cancel Order]
+    AD -- Not Pending --> AF[HTTP 400]
+    AE --> L
 ```
 
 ## Dependencies
 
-- `verify_token`: Function to verify JWT token.
-- `send_order_confirmation`: Function to send order confirmation email.
-- `OrderRepository`: Database repository for order management.
-- `get_current_user`: Dependency for getting the current authenticated user.
-```
+- `verify_token`: A function to verify JWT tokens.
+- `send_order_confirmation`: A function to send order confirmation emails.
+- `OrderRepository`: A database repository for order management.
+- `get_current_user`: A dependency for getting the current authenticated user.
 
 ## Payment Processing
 
 The payment processing is handled by the `PaymentProcessor` class in the `payments/processor.py` module. It supports multiple payment providers and transaction management.
 
-```python
-class PaymentProcessor:
-    def __init__(self, provider: PaymentProvider = PaymentProvider.STRIPE):
-        self.provider = provider
-
-    # Payment processing methods go here
+```
 ```
 
-## Notes
-
-- All endpoints require authentication via JWT token.
-- The `create_order` endpoint validates the order items and calculates the total price before creating the order record.
-- The `cancel_order` endpoint only allows cancelling pending orders.
-- The `list_orders` endpoint supports pagination via `limit` and `offset` parameters.
-- The `PaymentProcessor` class is responsible for handling payment processing operations.
-```
+```json
+{
+  "endpoints": [
+    {
+      "name": "Create a New Order",
+      "method": "POST",
+      "path": "/api/orders/create",
+      "description": "This endpoint allows users to create a new order by providing order items, shipping address, and payment method.",
+      "request_body": {
+        "items": [
+          {
+            "product_id": "string",
+            "quantity": number,
+            "price": number
+          }
+        ],
+        "shipping_address": "string",
+        "payment_method": "string"
+      },
+      "response": {
+        "order_id": "string",
+        "status": "string",
+        "total": number,
+        "items": [
+          {
+            "product_id": "string",
+            "quantity": number,
+            "price": number
+          }
+        ],
+        "created_at": "string"
+      },
+      "error_handling": [
+        {
+          "code": 400,
+          "description": "if validation fails"
+        },
+        {
+          "code": 500,
+          "description": "if payment processing fails"
+        }
+      ]
+    },
+    {
+      "name": "Get Order Details",
+      "method": "GET",
+      "path": "/api/orders/{order_id}",
+      "description": "This endpoint retrieves the details of a specific order by its ID. Users can only access their own orders.",
+      "path_parameters": [
+        {
+          "name": "order_id",
+          "type": "string",
+          "description": "The unique identifier of the order."
+        }
+      ],
+      "response": {
+        "order_id": "string",
+        "status": "string",
+        "total": number,
+        "items": [
+          {
+            "product_id": "string",
+            "quantity": number,
+            "price": number
+          }
+        ],
+        "created_at": "string"
+      },
+      "error_handling": [
+        {
+          "code": 404,
+          "description": "if the order is not found"
+        },
+        {
+          "code": 403,
+          "description": "if the user is not authorized to access the order"
+        }
+      ]
+    },
+    {
+      "name": "List User Orders",
+      "method": "GET",
+      "path": "/api/orders/",
+      "description": "This endpoint lists all orders for the current user, supporting pagination via `limit` and `offset` parameters.",
+      "query_parameters": [
+        {
+          "name": "limit",
+          "type": "integer",
+          "default": 10,
+          "description": "The number of orders to return per page."
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "default": 0,
+          "description": "The number of orders to skip before starting to collect the result set."
+        }
+      ],
+      "response": [
+        {
+          "order_id": "string",
+          "status":
